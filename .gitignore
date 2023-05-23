@@ -1,0 +1,6 @@
+0_files
+.idea
+*.yaml
+*.yml
+*.log
+*.pyc
