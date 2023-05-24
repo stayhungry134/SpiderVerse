@@ -56,9 +56,8 @@ def operate_chrome():
     driver.implicitly_wait(15)
     all_cookie = driver.get_cookies()
     cookies = {cookie['name']: cookie['value'] for cookie in all_cookie if cookie['name'] in ['csrftoken', 'auth_token']}
-    print(all_cookie)
-    print(cookies)
     write_cookies(cookies)
+
 
 def main():
     operate_chrome()
