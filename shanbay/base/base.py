@@ -10,7 +10,7 @@ import requests
 import subprocess
 from functools import partial
 # 目录路径
-from . import BASE_DIR
+from .config import BASE_DIR
 
 # 这样设置之后导入 execjs 才能正确执行
 subprocess.Popen = partial(subprocess.Popen, encoding="utf-8")
