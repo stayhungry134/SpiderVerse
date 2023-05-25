@@ -5,7 +5,11 @@ author: Ethan
 
 Description: 
 """
+import time
+import platform
+
 import pyaml
+from .config import BASE_DIR
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -13,13 +17,13 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
 def read_user():
-    with open('user.yaml', encoding='utf-8') as f:
+    with open(f'{BASE_DIR}/base/user.yaml', encoding='utf-8') as f:
         user = pyaml.yaml.safe_load(f)
     return user
 
 
 def write_cookies(cookies):
-    with open('cookies.yaml', encoding='utf-8', mode='w') as f:
+    with open(f'{BASE_DIR}/base/cookies.yaml', encoding='utf-8', mode='w') as f:
         pyaml.yaml.safe_dump(cookies, f)
 
 
@@ -27,6 +31,14 @@ def operate_chrome():
     user = read_user()
 
     options = Options()
+
+    WINDOW_SIZE = "1920, 1080"
+    # 不打开浏览器(无头模式, 无界面模式)
+    options.add_argument("--headless")
+    # 设置浏览器分辨率（窗口大小）
+    options.add_argument("--window-size=%s" % WINDOW_SIZE)
+    # 禁用Chrome浏览器的沙盒模式。沙盒模式是Chrome浏览器的一种安全机制，它会限制Chrome浏览器的一些功能，从而防止恶意软件利用Chrome浏览器来破坏或窃取用户的数据。
+    options.add_argument('--no-sandbox')
     # 禁用Chrome浏览器中与自动化控制相关的Blink特性。这个参数通常用于绕过一些网站对自动化工具（如Selenium）的检测。
     options.add_argument('--disable-blink-features=AutomationControlled')
     # 禁用Chrome浏览器的扩展功能。这个参数可以防止一些扩展插件对浏览器行为的影响。
@@ -54,6 +66,10 @@ def operate_chrome():
     word_card = driver.find_element(By.XPATH, '//div[@id="task-1"]')
     word_card.click()
     driver.implicitly_wait(15)
+    word_table = driver.find_element(By.XPATH, '//a[contains(text(), "词表")]')
+    word_table.click()
+    driver.implicitly_wait(15)
+    time.sleep(15)
     all_cookie = driver.get_cookies()
     cookies = {cookie['name']: cookie['value'] for cookie in all_cookie if cookie['name'] in ['csrftoken', 'auth_token']}
     write_cookies(cookies)

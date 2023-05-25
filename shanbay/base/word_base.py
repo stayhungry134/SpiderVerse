@@ -30,6 +30,7 @@ class BaseWords(ShanBay):
         base_url = 'https://apiv3.shanbay.com/wordsapp/user_material_books/buqwfz/learning/words/'
         api_url = base_url + self.api
         super().__init__(api_url, params)
+        self.words_dic = {}
 
     def get_words(self):
         """获取单词"""
@@ -37,13 +38,18 @@ class BaseWords(ShanBay):
         while self.total > self.current:
             self.params['page'] = self.current // 10 + 1
             words_dic.update(self.extract_word())
+        self.words_dic = words_dic
         return words_dic
 
     def verify_response(self):
         """获取cookies"""
-        if self.get_data() == 401:
-            self.get_cookie()
-            response = self.get_data()
+        if self.get_data().status_code != 200:
+            result = self.set_cookie()
+            if result:
+                response = self.get_data()
+                print('cookies更新成功！')
+            else:
+                raise Exception('获取cookies失败！')
         else:
             response = self.get_data()
         words_data = response.json().get('data')
@@ -69,7 +75,7 @@ class BaseWords(ShanBay):
         """保存单词"""
         import datetime
         today = datetime.date.today()
-        words_dic = self.get_words()
+        words_dic = self.words_dic or self.get_words()
         with open(f'{BASE_DIR}/../0_files/{today.isoformat()}.json', 'w', encoding='utf-8') as f:
             json.dump(words_dic, f, ensure_ascii=False, indent=4)
         print('保存成功！')
@@ -77,7 +83,6 @@ class BaseWords(ShanBay):
 
 class TodayWords(BaseWords):
     """今日单词"""
-
     def __init__(self, page=1, api='today_learning_items'):
         self.page = page
         params = {
@@ -86,6 +91,14 @@ class TodayWords(BaseWords):
             'type_of': 'NEW'
         }
         super().__init__(page, api, params)
+
+    def upload_words(self):
+        """将今日的单词上传到服务器"""
+        import requests
+        url = 'http://127.0.0.1:8000/api/ebbinghaus/put_words/'
+        words_dic = self.words_dic or self.get_words()
+        response = requests.post(url, json=words_dic)
+        return response.text
 
 
 class ReviewWords(BaseWords):

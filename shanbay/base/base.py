@@ -37,19 +37,13 @@ class ShanBay:
         self.api_url = api_url
         self.params = params
 
-    def get_cookie(self):
-        """获取cookie和data"""
+    def set_cookie(self):
+        """获取cookies"""
         import os
-        os.system('python get_cookies.py')
+        os.system(f'python -m base.set_cookies')
+        return True
 
     def get_data(self):
         """获取数据"""
         response = requests.get(url=self.api_url, headers=self.headers, params=self.params, cookies=get_cookies())
-        # 如果登录失效
-        if response.status_code != 200:
-            if response.status_code == 401:
-                return 401
-            else:
-                print(response.status_code, response.text)
-        else:
-            return response
+        return response
