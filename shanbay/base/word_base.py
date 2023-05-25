@@ -95,7 +95,7 @@ class TodayWords(BaseWords):
     def upload_words(self):
         """将今日的单词上传到服务器"""
         import requests
-        url = 'http://127.0.0.1:8000/api/ebbinghaus/put_words/'
+        url = 'http://127.0.0.1:8001/api/ebbinghaus/put_words/'
         words_dic = self.words_dic or self.get_words()
         response = requests.post(url, json=words_dic)
         return response.text
@@ -103,7 +103,6 @@ class TodayWords(BaseWords):
 
 class ReviewWords(BaseWords):
     """复习单词"""
-
     def __init__(self, page=1, api='today_learning_items'):
         self.page = page
         params = {
@@ -116,7 +115,6 @@ class ReviewWords(BaseWords):
 
 class LearnedWords(BaseWords):
     """已学单词"""
-
     def __init__(self, page=1, api='learning_items', order_by='CREATED_AT', order='DESC'):
         # 排序方式：CREATED_AT为按时间排序，FAMILIARITY为按熟悉程度排序
         order_by_list = ['CREATED_AT', 'FAMILIARITY']
@@ -155,7 +153,6 @@ class LearnedWords(BaseWords):
 
 class SimpleWords(BaseWords):
     """简单词"""
-
     def __init__(self, page=1, api='simple_learned_items', order='DESC'):
         # 首次学习时间排序方式：ASC为升序，DESC为降序
         order_list = ['ASC', 'DESC']
