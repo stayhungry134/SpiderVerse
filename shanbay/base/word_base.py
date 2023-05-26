@@ -95,7 +95,10 @@ class TodayWords(BaseWords):
     def upload_words(self):
         """将今日的单词上传到服务器"""
         import requests
-        url = 'http://127.0.0.1:8001/word_api/ebbinghaus/put_words/'
+        import pyaml
+        with open(f'{BASE_DIR}/base/config.yaml', 'r', encoding='utf-8') as f:
+            config = pyaml.yaml.safe_load(f)
+        url = config.get('put_url')
         words_dic = self.words_dic or self.get_words()
         response = requests.post(url, json=words_dic)
         print(response.text)
