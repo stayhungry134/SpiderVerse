@@ -10,11 +10,10 @@ import requests
 import subprocess
 from functools import partial
 # 目录路径
-from .config import BASE_DIR
+from .config import BASE_DIR, chrome_agent
 
 # 这样设置之后导入 execjs 才能正确执行
 subprocess.Popen = partial(subprocess.Popen, encoding="utf-8")
-from datas.global_data import chrome_agent
 
 
 def get_cookies():

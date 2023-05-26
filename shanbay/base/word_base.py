@@ -95,9 +95,10 @@ class TodayWords(BaseWords):
     def upload_words(self):
         """将今日的单词上传到服务器"""
         import requests
-        url = 'http://127.0.0.1:8001/api/ebbinghaus/put_words/'
+        url = 'http://127.0.0.1:8001/word_api/ebbinghaus/put_words/'
         words_dic = self.words_dic or self.get_words()
         response = requests.post(url, json=words_dic)
+        print(response.text)
         return response.text
 
 
