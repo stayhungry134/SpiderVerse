@@ -76,8 +76,12 @@ class BaseWords(ShanBay):
         import datetime
         today = datetime.date.today()
         words_dic = self.words_dic or self.get_words()
-        with open(f'{BASE_DIR}/../0_files/{today.isoformat()}.json', 'w', encoding='utf-8') as f:
+        with open(f'{BASE_DIR}/../0_files/word_json/{today.isoformat()}.json', 'w', encoding='utf-8') as f:
             json.dump(words_dic, f, ensure_ascii=False, indent=4)
+        with open(f'{BASE_DIR}/../0_files/word_text/{today.isoformat()}.txt', 'w', encoding='utf-8') as f:
+            for word in words_dic.keys():
+                f.write(word.replace('\'', ''))
+                f.write('\n')
         print('保存成功！')
 
 
