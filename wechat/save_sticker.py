@@ -14,7 +14,7 @@ https://mp.weixin.qq.com/s?__biz=MzIxMzQ4NjUxNQ==&mid=2247678844&idx=3&sn=d626f5
 https://mp.weixin.qq.com/s?__biz=MzIxMzQ4NjUxNQ==&mid=2247678844&idx=3&sn=d626f59f2c8c4e3fb3adb8626443c6e1&chksm=97ba65a0a0cdecb6240478826ca96438d52831ebe57118ce29f624cef19962ed14f1e7453071&scene=21#wechat_redirect
 """
 # 指定保存目录
-file_path = 'D:/Image/sticker/'
+file_path = 'E:/image/sticker/'
 url = input("请输入表情包公众号链接：")
 
 response = requests.get(url)
