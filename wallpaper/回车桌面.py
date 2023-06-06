@@ -5,7 +5,7 @@ author: Ethan
 
 Description: 
 """
-from base_class import EnterDesk
+from base_enter_desk import EnterDesk
 
 spider = EnterDesk(category='search')
 
