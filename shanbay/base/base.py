@@ -25,7 +25,6 @@ def get_cookies():
 
 class ShanBay:
     """扇贝单词"""
-
     def __init__(self, api_url, params):
         self.url = 'https://www.shanbay.com/'
         self.headers = {

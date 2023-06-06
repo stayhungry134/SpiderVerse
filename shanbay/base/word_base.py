@@ -6,6 +6,9 @@ author: Ethan
 Description: 
 """
 import json
+import os
+import pyaml
+
 from .config import BASE_DIR
 from .base import ShanBay
 
@@ -94,19 +97,53 @@ class TodayWords(BaseWords):
             'page': self.page,
             'type_of': 'NEW'
         }
+        with open(f'{BASE_DIR}/base/config.yaml', 'r', encoding='utf-8') as f:
+            config = pyaml.yaml.safe_load(f)
+        self.put_url = config.get('put_url')
         super().__init__(page, api, params)
 
     def upload_words(self):
         """将今日的单词上传到服务器"""
+        import os
+        import datetime
         import requests
-        import pyaml
-        with open(f'{BASE_DIR}/base/config.yaml', 'r', encoding='utf-8') as f:
-            config = pyaml.yaml.safe_load(f)
-        url = config.get('put_url')
-        words_dic = self.words_dic or self.get_words()
-        response = requests.post(url, json=words_dic)
+        # 如果目录中有今日的单词文件，则上传
+        today = datetime.date.today().isoformat()
+        if os.path.exists(f'{BASE_DIR}/../0_files/word_json/{today}.json'):
+            with open(f'{BASE_DIR}/../0_files/word_json/{today}.json', 'r', encoding='utf-8') as f:
+                words_dic = json.load(f)
+        else:
+            words_dic = self.words_dic or self.get_words()
+        print(self.put_url)
+        response = requests.post(self.put_url, json=words_dic)
         print(response.text)
         return response.text
+
+    def upload_article(self):
+        """将今日的文章上传到服务器"""
+        import re
+        import requests
+        import openai
+        words_dic = self.words_dic or self.get_words()
+        words = ', '.join(words_dic.keys())
+        system_content = "You are a useful assistant. You can generate an article title based on the words given by " \
+                         "the user and return the format {title:, content:}"
+        completion = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {'role': 'system', 'content': system_content},
+                {'role': 'user', 'content': words},
+            ]
+        )
+
+        article = completion.choices[0].message.content
+        title = re.findall(r'[tT]itle:\W*(.*)\n*[Cc]ontent:', article)[0]
+        content = re.findall(r'[cC]ontent:.*\n*(.*)', article)[0]
+        data = {
+            'title': title,
+            'content': content
+        }
+        requests.post(self.url, data=data)
 
 
 class ReviewWords(BaseWords):
