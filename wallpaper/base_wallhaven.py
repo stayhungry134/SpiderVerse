@@ -49,7 +49,7 @@ class BaseWallHaven:
         self.ai_art_filter = ai_art_filter
         self.start_page = start_page
         self.end_page = end_page
-        if socket.gethostname() == 'MY-DESKTOP':
+        if socket.gethostname() == 'Ethan':
             self.save_path = 'E:/Image/WallHaven/'
         elif socket.gethostname() == 'MY-COLORFUL':
             self.save_path = 'D:/Image/WallHaven/'
