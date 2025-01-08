@@ -6,15 +6,18 @@ author: Ethan
 Description: 
 """
 import time
-import platform
+import os
 
 import pyaml
-from .config import BASE_DIR
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 
 def read_user():
     with open(f'{BASE_DIR}/base/user.yaml', encoding='utf-8') as f:

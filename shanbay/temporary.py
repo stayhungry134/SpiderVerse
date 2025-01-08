@@ -5,17 +5,7 @@ author: Ethan
 
 Description: 
 """
-import json
-import os
+from base.word_base import LearnedWords
 
-# 遍历读取 0_files 文件夹下的文件
-files = os.listdir('../0_files')
-for file in files:
-    if file == 'word_text':
-        continue
-    with open(f'../0_files/{file}', 'r', encoding='utf-8') as f:
-        files = json.load(f)
-        for word in files.keys():
-            with open(f'../0_files/word_text/{file.split(".")[0]}.txt', 'a', encoding='utf-8') as f:
-                f.write(word.replace('\'', ''))
-                f.write('\n')
+today_words = LearnedWords(page=1)
+today_words.save_word()

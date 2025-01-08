@@ -7,6 +7,9 @@ Description:
 """
 import logging
 import os
+import time
+import logging
+
 import requests
 
 chrome_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36'
@@ -33,7 +36,18 @@ class BaseWallHaven:
     end_page: 结束页
     """
 
-    def __init__(self, q='', categories='001', purity=100, sorting='date_added', order='desc', ai_art_filter=1, start_page=1, end_page=2):
+    def __init__(self,
+                 q='',
+                 categories='001',
+                 purity=100,
+                 atleast='1920x1080',
+                 ratios='',
+                 sorting='date_added',
+                 order='desc',
+                 ai_art_filter=1,
+                 start_page=1,
+                 end_page=1,
+                 save_path='', ):
         import socket
         import sqlite3
         self.url = 'https://wallhaven.cc/'
@@ -44,16 +58,21 @@ class BaseWallHaven:
         self.q = q
         self.categories = categories
         self.purity = purity
+        self.ratios = ratios
+        self.atleast = atleast
         self.sorting = sorting
         self.order = order
         self.ai_art_filter = ai_art_filter
         self.start_page = start_page
         self.end_page = end_page
-        if socket.gethostname() == 'Ethan':
+        if save_path:
+            self.save_path = save_path
+        elif socket.gethostname() == 'Ethan':
             self.save_path = 'E:/Image/WallHaven/'
         elif socket.gethostname() == 'MY-COLORFUL':
             self.save_path = 'D:/Image/WallHaven/'
-
+        else:
+            self.save_path = 'WallHaven/'
         # 不存在就创建保存路径
         if not os.path.exists(self.save_path):
             os.makedirs(self.save_path)
@@ -64,23 +83,25 @@ class BaseWallHaven:
         # 查看数据库是否存在，不存在就创建
         conn = sqlite3.connect('wallhaven.db')
         cursor = conn.cursor()
-        cursor.execute('create table if not exists wallhaven (id integer primary key autoincrement, img_name varchar(255))')
+        cursor.execute(
+            'create table if not exists wallhaven (id integer primary key autoincrement, img_name varchar(255))')
         cursor.close()
         conn.close()
+
+        # 设置日志
+        logging.basicConfig(filename='wallhaven.log',
+                            level=logging.INFO,
+                            format='%(asctime)s - %(levelname)s - %(message)s',
+                            encoding='utf-8')
 
     def parsing_page(self, page=1):
         """解析页面，获得图片详情页的 url"""
         import requests
         from lxml import etree
         # self.proxy = get_proxy().get("proxy")
-        logging.info(f"使用代理：{self.proxy}")
-        url = f"{self.url}search?" \
-              f"&q={self.q}" \
-              f"&categories={self.categories}" \
-              f"&purity={self.purity}" \
-              f"&sorting={self.sorting}" \
-              f"&order={self.order}" \
-              f"&page={page}"
+        # logging.info(f"使用代理：{self.proxy}")
+        url = f"{self.url}search?&q={self.q}&categories={self.categories}&atleast={self.atleast}&purity={self.purity}&ratios={self.ratios}&sorting={self.sorting}&order={self.order}&page={page}"
+        print(url)
         response = requests.get(url, headers=self.headers)
         html = etree.HTML(response.text)
         img_detail_urls = html.xpath('//figure/a/@href')
@@ -90,13 +111,24 @@ class BaseWallHaven:
         """解析详情页，获得图片的 url"""
         import requests
         from lxml import etree
-        response = requests.get(img_detail_url, headers=self.headers)
-        html = etree.HTML(response.text)
-        try:
+        def get_img_url():
+            response = requests.get(img_detail_url, headers=self.headers)
+            html = etree.HTML(response.text)
             img_url = html.xpath('//img[@id="wallpaper"]/@src')[0]
             return img_url
+
+        try:
+            for i in range(5):
+                img_url = get_img_url()
+                if img_url:
+                    return img_url
+                else:
+                    time.sleep(1)
         except IndexError:
-            logging.error(f"图片详情页：{img_detail_url}，没有找到图片的 url")
+            try:
+                return get_img_url()
+            except IndexError:
+                logging.error(f"图片详情页：{img_detail_url}获取5次都没有获取到啊！！！")
 
     def download_img(self, img_url):
         """下载图片"""
@@ -108,12 +140,14 @@ class BaseWallHaven:
         cursor = conn.cursor()
         cursor.execute('select * from wallhaven where img_name=?', (img_name,))
         if cursor.fetchone():
-            print(f"{img_name}已经下载过了！！！")
+            logging.info(f"{img_name}已经下载过了！！！")
             return
         response = requests.get(img_url, headers=self.headers)
         with open(self.save_path + img_name, 'wb') as f:
             f.write(response.content)
+            logging.info(f"{img_name}下载成功！！！")
             print(f"{img_name}下载成功！！！")
+            time.sleep(0.5)
 
     def record_imgs(self, img_names):
         """记录已经下载的图片"""
@@ -130,6 +164,7 @@ class BaseWallHaven:
         """运行"""
         from threading import Thread
         for page in range(self.start_page, self.end_page + 1):
+            time.sleep(10)
             img_detail_urls = self.parsing_page(page)
             # 多线程下载图片
             threads = []
@@ -150,4 +185,4 @@ class BaseWallHaven:
             with open('wallhaven1.txt', 'a') as f:
                 f.write(str(page))
                 f.write('\n')
-            print(f"第{page}页下载完成！！！")
+            logging.info(f"第{page}页下载完成！！！")

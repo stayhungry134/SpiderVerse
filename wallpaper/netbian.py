@@ -6,7 +6,7 @@ from lxml import etree
 import time
 
 # 指定url
-url = 'http://pic.netbian.com/4kmeinv/' # 美女
+# url = 'http://pic.netbian.com/4kmeinv/' # 美女
 # url = 'http://pic.netbian.com/4kfengjing/'  # 风景
 # url = 'https://pic.netbian.com/4kdongman/'  # 动漫
 # url = 'https://pic.netbian.com/4kyouxi/'  # 游戏
@@ -17,7 +17,7 @@ url = 'http://pic.netbian.com/4kmeinv/' # 美女
 # url = 'http://pic.netbian.com/4kzongjiao/'  # 宗教
 # url = 'http://pic.netbian.com/4kbeijing/'  # 背景
 # url = 'http://pic.netbian.com/pingban/'  # 平板
-# url = 'http://pic.netbian.com/shoujibizhi/'  # 手机
+url = 'http://www.netbian.com/shouji/'  # 手机
 
 # 进行 UA 伪装
 headers = {
@@ -26,7 +26,7 @@ headers = {
 }
 
 # 指定保存目录
-file_path = 'E:/image/netbian/meinv/'
+file_path = 'E:/image/netbian/phone/'
 
 if not os.path.exists(file_path):
     os.mkdir(file_path)
@@ -38,7 +38,10 @@ def get_img_list(net_url):
     # 解析数据
     html = etree.HTML(response)
     # 解析图片列表
-    ls_img = html.xpath('//div[@class="slist"]//li/a/@href')
+    # 手机
+    ls_img = html.xpath('//div[@class="list list-phone"]//li/a/@href')
+    # 电脑
+    # ls_img = html.xpath('//div[@class="slist"]//li/a/@href')
     next_url = html.xpath('//div[@class="page"]/a/@href')[-1]
     return ls_img, next_url
 
@@ -82,7 +85,7 @@ def main():
     return next_url
 
 
-for i in range(69):
+for i in range(258):
     next_url = main()
     url = 'http://pic.netbian.com' + next_url
     print("第{}页保存成功！！！".format(i))

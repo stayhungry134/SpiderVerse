@@ -9,5 +9,5 @@ from base.word_base import TodayWords
 
 today_words = TodayWords()
 today_words.save_word()
-today_words.upload_words()
+# today_words.upload_words()
 # today_words.upload_article()

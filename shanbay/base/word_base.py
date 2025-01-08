@@ -30,7 +30,7 @@ class BaseWords(ShanBay):
         self.params = params
         self.current = 0
         self.total = 50
-        base_url = 'https://apiv3.shanbay.com/wordsapp/user_material_books/buqwfz/learning/words/'
+        base_url = 'https://apiv3.shanbay.com/wordsapp/user_material_books/buksun/learning/words/'
         api_url = base_url + self.api
         super().__init__(api_url, params)
         self.words_dic = {}
@@ -124,10 +124,13 @@ class TodayWords(BaseWords):
         import re
         import requests
         import openai
+
+        key = os.getenv("OPENAI_API_KEY")
+        openai.api_key = key
         words_dic = self.words_dic or self.get_words()
         words = ', '.join(words_dic.keys())
-        system_content = "You are a useful assistant. You can generate an article title based on the words given by " \
-                         "the user and return the format {title:, content:}"
+        system_content = "You are a useful assistant. You can generate article titles based on the words given by the" \
+                         " user and put them back in markdown format"
         completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
